@@ -1,26 +1,50 @@
 package com.example.moneo.exception;
 
+import com.example.moneo.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeExceptions(RuntimeException ex) {
+        String message = ex.getMessage();
+
+
+        switch (message) {
+            case "EMAIL_EXISTS":
+                return buildResponse(HttpStatus.CONFLICT, "EMAIL_EXISTS", "Bu email artıq qeydiyyatdan keçib.");
+
+            case "WRONG_CREDENTIALS":
+                return buildResponse(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Email və ya şifrə yanlışdır.");
+
+            case "TOO_MANY_REQUESTS":
+                return buildResponse(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_REQUESTS", "Çox sayda sorğu göndərildi. Bir az gözləyin.");
+
+            case "CATEGORY_HAS_TRANSACTIONS":
+                return buildResponse(HttpStatus.BAD_REQUEST, "CATEGORY_HAS_TRANSACTIONS", "Bu kateqoriyaya bağlı əməliyyatlar olduğu üçün silinə bilməz.");
+
+            default:
+
+                return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", message);
+        }
+    }
+
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage());
+    }
+
+
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String error, String message) {
+        ErrorResponse response = ErrorResponse.builder()
+                .error(error)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(response, status);
     }
 }

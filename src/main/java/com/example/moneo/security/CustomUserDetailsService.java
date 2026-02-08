@@ -24,8 +24,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                         new UsernameNotFoundException("User not found"));
 
         return User.builder()
-                .username(user.getEmail())     // login üçün email
-                .password(user.getPassword()) // DB-də encode olunmuş password
+                .username(user.getEmail())
+                .password(user.getPassword())
                 .roles("USER")
                 .build();
     }

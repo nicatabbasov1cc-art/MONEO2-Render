@@ -1,7 +1,9 @@
 package com.example.moneo.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.*;
 
 public class AuthDTO {
@@ -22,11 +24,16 @@ public class AuthDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class AuthResponse {
         private String token;
+        private Long userId;
         private String email;
+        private boolean hasData;
         private String firstName;
         private String lastName;
+        private boolean success;
     }
 
     @Data

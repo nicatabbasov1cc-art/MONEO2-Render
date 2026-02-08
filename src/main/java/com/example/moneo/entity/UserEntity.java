@@ -45,6 +45,16 @@ public class UserEntity implements UserDetails {
 
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<TransactionEntity> transactions;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<AccountEntity> accounts;
+
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

@@ -2,7 +2,6 @@ package com.example.moneo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,8 +24,13 @@ public class TransactionEntity {
     @Column(nullable = false)
     private String category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @ToString.Exclude
+    private CategoryEntity categoryEntity;
+
     @Column(name = "transaction_type", nullable = false)
-    private String type;
+    private String transactionType;
 
     private String description;
 
@@ -35,10 +39,20 @@ public class TransactionEntity {
 
     private LocalDateTime createdAt;
 
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean deleted = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", nullable = false)
+    @ToString.Exclude
+    private AccountEntity account;
 
     @PrePersist
     protected void onCreate() {

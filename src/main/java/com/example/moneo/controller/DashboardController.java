@@ -1,6 +1,6 @@
 package com.example.moneo.controller;
 
-import com.example.moneo.dto.DashboardDTO;
+import com.example.moneo.dto.AccountDTO;
 import com.example.moneo.entity.UserEntity;
 import com.example.moneo.service.TransactionService;
 import com.example.moneo.service.UserService;
@@ -18,12 +18,16 @@ public class DashboardController {
     private final TransactionService transactionService;
     private final UserService userService;
 
-    @GetMapping
-    public ResponseEntity<DashboardDTO> getDashboard() {
+    @GetMapping("/summary")
+    public ResponseEntity<AccountDTO.DashboardResponse> getSummary() {
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         UserEntity user = userService.findByEmail(email);
 
-        if (user == null) return ResponseEntity.status(401).build();
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
 
         return ResponseEntity.ok(transactionService.getDashboardSummary(user.getId()));
     }

@@ -25,9 +25,17 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Bütün auth yollarını (register, login) tam sərbəst burax
-                        .requestMatchers("/api/auth/**", "/api/v1/auth/**", "/auth/**").permitAll()
-                        // Digər hər şey üçün giriş tələb et
+
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // Swagger linklərinə hər kəsə icazə veririk
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        // Digər bütün sorğular üçün TOKEN mütləqdir
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
