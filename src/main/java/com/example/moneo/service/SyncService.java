@@ -27,7 +27,7 @@ public class SyncService {
         int synced = 0;
         int conflicts = 0;
 
-        
+
         if (request.getCategories() != null) {
             for (var catReq : request.getCategories()) {
                 if (!categoryRepository.existsByNameAndUserId(catReq.getName(), user.getId())) {
