@@ -13,11 +13,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
-@CrossOrigin
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -27,7 +28,6 @@ public class TransactionController {
     public ResponseEntity<TransactionDTO.Response> addTransaction(@Valid @RequestBody TransactionDTO.CreateRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userService.findByEmail(email);
-        if (user == null) return ResponseEntity.status(401).build();
         return ResponseEntity.ok(transactionService.createTransaction(request, user));
     }
 
@@ -36,18 +36,18 @@ public class TransactionController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userService.findByEmail(email);
-        return ResponseEntity.ok(transactionService.getTransactions(user.getId(), type, from, to, page, limit));
+        return ResponseEntity.ok(transactionService.getTransactions(user.getId(), type, from, to, categoryIds, search, page, limit));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionDTO.Response> updateTransaction(
-            @PathVariable Long id,
-            @Valid @RequestBody TransactionDTO.CreateRequest request) {
+    public ResponseEntity<TransactionDTO.Response> updateTransaction(@PathVariable Long id, @Valid @RequestBody TransactionDTO.CreateRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userService.findByEmail(email);
         return ResponseEntity.ok(transactionService.updateTransaction(id, request, user.getId()));

@@ -23,4 +23,9 @@ public class FinancialGoalService {
     public Optional<FinancialGoalEntity> findById(Long id) {
         return goalRepository.findById(id);
     }
+
+
+    public void deleteById(Long id) {
+        goalRepository.deleteById(id);
+    }
 }

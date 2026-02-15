@@ -23,7 +23,7 @@ public class AccountService {
     private final TransactionRepository transactionRepository;
     private final UserService userService;
 
-    // YENİ: DTO qaytarır
+
     public List<AccountDTO.AccountResponse> findByUserId(Long userId) {
         List<AccountEntity> accounts = accountRepository.findByUserId(userId);
         return accounts.stream()
@@ -35,7 +35,7 @@ public class AccountService {
         return accountRepository.findById(id).orElse(null);
     }
 
-    // YENİ: DTO qaytarır
+
     @Transactional
     public AccountDTO.AccountResponse createAccount(AccountDTO.CreateRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -72,7 +72,7 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
-    // YENİ: Entity-dən DTO-ya çevirən helper metod
+
     private AccountDTO.AccountResponse convertToDTO(AccountEntity account) {
         return AccountDTO.AccountResponse.builder()
                 .accountId(account.getId())
@@ -83,7 +83,7 @@ public class AccountService {
                 .build();
     }
 
-    // YENİ: Entity + Transaction DTO-ya çevirən helper metod
+
     private AccountDTO.AccountResponse convertToDTO(AccountEntity account, TransactionEntity transaction) {
         AccountDTO.TransactionResponse txResponse = AccountDTO.TransactionResponse.builder()
                 .id(transaction.getId())

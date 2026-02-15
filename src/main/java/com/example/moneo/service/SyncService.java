@@ -20,13 +20,33 @@ public class SyncService {
     private final TransactionRepository transactionRepository;
     private final UserService userService;
 
+    @Transactional(readOnly = true)
+    public SyncDTO.ConflictResponse checkConflict(Long userId, boolean hasLocalData) {
+        boolean serverDataExists = transactionRepository.existsByUserIdAndDeletedFalse(userId);
+        return SyncDTO.ConflictResponse.builder()
+                .serverDataExists(serverDataExists)
+                .conflict(hasLocalData && serverDataExists)
+                .build();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public SyncDTO.SyncResponse resolveConflict(SyncDTO.ResolveRequest request, String email) {
+        if ("keep_local".equalsIgnoreCase(request.getStrategy())) {
+            return syncData(request.getLocalData(), email);
+        } else {
+            return SyncDTO.SyncResponse.builder()
+                    .status("KEEP_SERVER_SUCCESS")
+                    .messages(List.of("Server data preserved successfully"))
+                    .build();
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public SyncDTO.SyncResponse syncData(SyncDTO.SyncRequest request, String userEmail) {
         UserEntity user = userService.findByEmail(userEmail);
         List<String> messages = new ArrayList<>();
         int synced = 0;
         int conflicts = 0;
-
 
         if (request.getCategories() != null) {
             for (var catReq : request.getCategories()) {
@@ -41,7 +61,6 @@ public class SyncService {
                 }
             }
         }
-
 
         if (request.getAccounts() != null) {
             for (var accReq : request.getAccounts()) {
@@ -59,16 +78,13 @@ public class SyncService {
             }
         }
 
-
         if (request.getTransactions() != null) {
             for (var tReq : request.getTransactions()) {
                 AccountEntity account = accountRepository.findByIdAndUserId(tReq.getAccountId(), user.getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Hesab tapılmadı (ID: " + tReq.getAccountId() + "). Tranzaksiya qeyd edilə bilməz."));
 
-
                 CategoryEntity category = categoryRepository.findById(tReq.getCategoryId())
                         .orElseThrow(() -> new ResourceNotFoundException("Kateqoriya tapılmadı (ID: " + tReq.getCategoryId() + ")"));
-
 
                 transactionRepository.save(TransactionEntity.builder()
                         .amount(tReq.getAmount())

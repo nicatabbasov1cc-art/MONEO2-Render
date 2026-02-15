@@ -7,22 +7,22 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "financial_goals")
+@Table(name = "debts")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FinancialGoalEntity {
-
+public class DebtEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-    private BigDecimal targetAmount;
-    private BigDecimal currentAmount;
-    private String goalType;
-    private LocalDate targetDate;
+    private BigDecimal totalAmount;
+    private BigDecimal remainingAmount;
+    private BigDecimal monthlyPayment;
+    private LocalDate startDate;
+    private LocalDate dueDate;
     private Integer durationMonths;
     private String icon;
     private LocalDateTime createdAt;

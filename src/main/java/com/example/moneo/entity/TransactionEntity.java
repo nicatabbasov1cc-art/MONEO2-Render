@@ -21,7 +21,7 @@ public class TransactionEntity {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String category;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,13 +32,14 @@ public class TransactionEntity {
     @Column(name = "transaction_type", nullable = false)
     private String transactionType;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false)
+    @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
-
 
     @Builder.Default
     @Column(nullable = false)

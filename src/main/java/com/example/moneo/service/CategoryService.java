@@ -19,31 +19,29 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
 
+    @Transactional(readOnly = true)
+    public List<CategoryDTO.Response> getAllCategories(Long userId) {
+        return categoryRepository.findByUserIdOrIsDefaultTrue(userId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public CategoryDTO.Response createCategory(CategoryDTO.CreateRequest request, UserEntity user) {
-
         if (categoryRepository.existsByNameAndUserId(request.getName(), user.getId())) {
             throw new RuntimeException("CATEGORY_ALREADY_EXISTS");
         }
 
-
         CategoryEntity category = CategoryEntity.builder()
                 .name(request.getName())
                 .icon(request.getIcon())
-                .type(request.getType())
+                .type(request.getType().toUpperCase())
                 .isDefault(false)
                 .user(user)
                 .build();
 
         CategoryEntity saved = categoryRepository.save(category);
         return mapToResponse(saved);
-    }
-
-    public List<CategoryDTO.Response> getAllCategories(Long userId) {
-        return categoryRepository.findByUserIdOrIsDefaultTrue(userId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -65,6 +63,35 @@ public class CategoryService {
         }
 
         categoryRepository.delete(category);
+    }
+
+    @Transactional
+    public CategoryDTO.Response updateCategory(Long categoryId, CategoryDTO.CreateRequest request, Long userId) {
+        CategoryEntity category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("CATEGORY_NOT_FOUND"));
+
+        // Default kateqoriyalar redaktə oluna bilməz
+        if (category.isDefault()) {
+            throw new RuntimeException("DEFAULT_CATEGORY_CANNOT_BE_EDITED");
+        }
+
+        // Yalnız kateqoriya sahibi redaktə edə bilər
+        if (category.getUser() == null || !category.getUser().getId().equals(userId)) {
+            throw new RuntimeException("ACCESS_DENIED");
+        }
+
+        // Ad dəyişirsə, yeni adın həmin user-də dublikat olub-olmadığını yoxla
+        if (!category.getName().equalsIgnoreCase(request.getName()) &&
+                categoryRepository.existsByNameAndUserId(request.getName(), userId)) {
+            throw new RuntimeException("CATEGORY_NAME_ALREADY_EXISTS");
+        }
+
+        category.setName(request.getName());
+        category.setIcon(request.getIcon());
+        category.setType(request.getType().toUpperCase());
+
+        CategoryEntity updated = categoryRepository.save(category);
+        return mapToResponse(updated);
     }
 
     private CategoryDTO.Response mapToResponse(CategoryEntity entity) {

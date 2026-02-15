@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
 
+
     List<CategoryEntity> findByUserIdOrIsDefaultTrue(Long userId);
 
     boolean existsByNameAndUserId(String name, Long userId);

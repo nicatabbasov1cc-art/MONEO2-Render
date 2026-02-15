@@ -23,16 +23,20 @@ public class AuthService {
     private final RateLimitService rateLimitService;
 
     public String register(AuthDTO.RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
 
+        if (!request.getPassword().equals(request.getRepassword())) {
+            throw new RuntimeException("PASSWORDS_DO_NOT_MATCH");
+        }
+
+
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("EMAIL_EXISTS");
         }
+
 
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
                 .build();
 
         userRepository.save(user);
@@ -41,16 +45,12 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthDTO.AuthResponse login(AuthDTO.LoginRequest request) {
-
         System.out.println("LOG: Giriş cəhdi yoxlanılır - Email: " + request.getEmail());
-
 
         if (!rateLimitService.tryConsume(request.getEmail())) {
             System.err.println("LOG: !!! RATE LIMIT ASHILDI !!! - " + request.getEmail());
-
             throw new RuntimeException("TOO_MANY_REQUESTS");
         }
-
 
         try {
             authenticationManager.authenticate(
@@ -58,18 +58,13 @@ public class AuthService {
             );
         } catch (BadCredentialsException e) {
             System.out.println("LOG: Səhv şifrə cəhdi - " + request.getEmail());
-
             throw new RuntimeException("WRONG_CREDENTIALS");
         }
-
 
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
-
         String token = jwtUtil.generateToken(user.getEmail());
-
-
         boolean hasData = user.getTransactions() != null && !user.getTransactions().isEmpty();
 
 
@@ -78,8 +73,6 @@ public class AuthService {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .hasData(hasData)
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
                 .success(true)
                 .build();
     }

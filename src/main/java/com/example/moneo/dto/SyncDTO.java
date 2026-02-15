@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
+@Data
 public class SyncDTO {
 
     @Data
@@ -26,5 +27,23 @@ public class SyncDTO {
         private int syncedCount;
         private int conflictCount;
         private List<String> messages;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ConflictResponse {
+        private boolean serverDataExists;
+        private boolean conflict;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResolveRequest {
+        private String strategy; // keep_local | keep_server
+        private SyncRequest localData;
     }
 }

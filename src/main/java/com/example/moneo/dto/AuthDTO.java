@@ -10,16 +10,17 @@ public class AuthDTO {
 
     @Data
     public static class RegisterRequest {
-        @NotBlank(message = "Email tələb olunur")
-        @Email(message = "Email formatı düzgün deyil")
+        @NotBlank(message = "EMAIL_REQUIRED")
+        @Email(message = "EMAIL_INVALID")
         private String email;
 
-        @NotBlank(message = "Şifrə tələb olunur")
-        @Size(min = 6, message = "Şifrə minimum 6 simvol olmalıdır")
+        @NotBlank(message = "PASSWORD_REQUIRED")
+        @Size(min = 8, message = "PASSWORD_TOO_SHORT")
         private String password;
 
-        private String firstName;
-        private String lastName;
+        @NotBlank(message = "REPASSWORD_REQUIRED")
+        @Size(min = 8, message = "PASSWORD_TOO_SHORT")
+        private String repassword; // Yeni sahə
     }
 
     @Data
@@ -31,18 +32,17 @@ public class AuthDTO {
         private Long userId;
         private String email;
         private boolean hasData;
-        private String firstName;
-        private String lastName;
         private boolean success;
+
     }
 
     @Data
     public static class LoginRequest {
-        @NotBlank(message = "Email tələb olunur")
-        @Email(message = "Email formatı düzgün deyil")
+        @NotBlank(message = "EMAIL_REQUIRED")
+        @Email(message = "EMAIL_INVALID")
         private String email;
 
-        @NotBlank(message = "Şifrə tələb olunur")
+        @NotBlank(message = "PASSWORD_REQUIRED")
         private String password;
     }
 }

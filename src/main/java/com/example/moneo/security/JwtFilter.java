@@ -37,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         final String jwt = authHeader.substring(7);
 
-        // --- YENİ: BLACKLIST YOXLANIŞI ---
+
         if (blacklistService.isBlacklisted(jwt)) {
             filterChain.doFilter(request, response);
             return;

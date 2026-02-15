@@ -14,18 +14,21 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionEntity, Long> {
 
-    @Query("SELECT t FROM TransactionEntity t WHERE t.user.id = :userId AND t.deleted = false " +
-            "AND (:type IS NULL OR t.transactionType = :type) " +
-            "AND (:from IS NULL OR t.transactionDate >= :from) " +
-            "AND (:to IS NULL OR t.transactionDate <= :to)")
+    @Query(value = "SELECT * FROM filter_transactions_func(:userId, :type, :from, :to, CAST(:categoryIds AS bigint[]), :search)",
+            countQuery = "SELECT count(*) FROM filter_transactions_func(:userId, :type, :from, :to, CAST(:categoryIds AS bigint[]), :search)",
+            nativeQuery = true)
     Page<TransactionEntity> filterTransactions(
             @Param("userId") Long userId,
             @Param("type") String type,
             @Param("from") LocalDate from,
             @Param("to") LocalDate to,
+            @Param("categoryIds") List<Long> categoryIds,
+            @Param("search") String search,
             Pageable pageable);
 
     List<TransactionEntity> findByUserIdAndDeletedFalseOrderByTransactionDateDesc(Long userId);
-
     long countByCategoryEntityIdAndDeletedFalse(Long categoryId);
+
+
+    boolean existsByUserIdAndDeletedFalse(Long userId);
 }

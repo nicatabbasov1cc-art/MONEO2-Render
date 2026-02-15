@@ -12,14 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
-@CrossOrigin
 public class CategoryController {
 
     private final CategoryService categoryService;
     private final UserService userService;
-
 
     @PostMapping
     public ResponseEntity<CategoryDTO.Response> createCategory(@RequestBody CategoryDTO.CreateRequest request) {
@@ -33,6 +32,17 @@ public class CategoryController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userService.findByEmail(email);
         return ResponseEntity.ok(categoryService.getAllCategories(user.getId()));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryDTO.Response> updateCategory(
+            @PathVariable Long id,
+            @RequestBody CategoryDTO.CreateRequest request) {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userService.findByEmail(email);
+
+        return ResponseEntity.ok(categoryService.updateCategory(id, request, user.getId()));
     }
 
     @DeleteMapping("/{id}")

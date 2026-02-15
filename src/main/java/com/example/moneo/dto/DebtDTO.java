@@ -1,15 +1,11 @@
 package com.example.moneo.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class FinancialGoalDTO {
-
+public class DebtDTO {
     @Data
     @Builder
     @NoArgsConstructor
@@ -17,11 +13,11 @@ public class FinancialGoalDTO {
     public static class Response {
         private Long id;
         private String name;
-        private BigDecimal targetAmount;
-        private BigDecimal currentAmount;
-        private BigDecimal progressPercentage;
-        private String goalType;
-        private LocalDate targetDate;
+        private BigDecimal totalAmount;
+        private BigDecimal remainingAmount;
+        private BigDecimal monthlyPayment;
+        private LocalDate startDate;
+        private LocalDate dueDate;
         private Integer durationMonths;
         private String icon;
         private LocalDateTime createdAt;
@@ -31,14 +27,14 @@ public class FinancialGoalDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreateRequest {
+    public static class Request {
         private String name;
-        private BigDecimal targetAmount;
-        private BigDecimal currentAmount;
-        private String goalType;
-        private LocalDate targetDate;
+        private BigDecimal totalAmount;
+        private BigDecimal remainingAmount;
+        private BigDecimal monthlyPayment;
+        private LocalDate startDate;
+        private LocalDate dueDate;
         private Integer durationMonths;
         private String icon;
-        private String email;
     }
 }

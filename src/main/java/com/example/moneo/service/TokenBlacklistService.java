@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TokenBlacklistService {
-    // Yaddaşda qara siyahıya alınmış tokenləri saxlayır
+
     private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
 
     public void blacklistToken(String token) {

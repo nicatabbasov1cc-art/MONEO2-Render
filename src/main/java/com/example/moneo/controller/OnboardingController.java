@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/api/onboarding")
 @RequiredArgsConstructor
-@CrossOrigin
 public class OnboardingController {
 
     private final UserService userService;

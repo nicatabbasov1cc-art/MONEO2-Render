@@ -10,9 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
-@CrossOrigin
 public class DashboardController {
 
     private final TransactionService transactionService;
