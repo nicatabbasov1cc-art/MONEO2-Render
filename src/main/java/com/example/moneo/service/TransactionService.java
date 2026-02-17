@@ -33,10 +33,7 @@ public class TransactionService {
             Long userId, String type, LocalDate from, LocalDate to,
             List<Long> categoryIds, String search, int page, int limit) {
 
-
-
         List<Long> cats = (categoryIds == null || categoryIds.isEmpty()) ? null : categoryIds;
-
 
         Pageable pageable = PageRequest.of(page, limit);
 
@@ -155,19 +152,34 @@ public class TransactionService {
                 .filter(t -> "EXPENSE".equalsIgnoreCase(t.getTransactionType()))
                 .map(TransactionEntity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        List<AccountDTO.TransactionResponse> recent = transactions.stream().limit(5).map(t -> AccountDTO.TransactionResponse.builder()
-                .id(t.getId()).type(t.getTransactionType()).amount(t.getAmount())
-                .description(t.getDescription()).categoryName(t.getCategory()).build()).collect(Collectors.toList());
+        List<AccountDTO.TransactionResponse> recent = transactions.stream().limit(5)
+                .map(t -> AccountDTO.TransactionResponse.builder()
+                        .id(t.getId())
+                        .type(t.getTransactionType())
+                        .amount(t.getAmount())
+                        .description(t.getDescription())
+                        .categoryName(t.getCategory())
+                        .build())
+                .collect(Collectors.toList());
 
         return AccountDTO.DashboardResponse.builder()
-                .balance(income.subtract(expenses)).thisMonthIncome(income).thisMonthExpenses(expenses)
-                .recentTransactions(recent).trend("Stabil").performanceIndex(100.0).build();
+                .balance(income.subtract(expenses))
+                .thisMonthIncome(income)
+                .thisMonthExpenses(expenses)
+                .recentTransactions(recent)
+                .performanceIndex(100.0)
+                .build();
     }
 
     private TransactionDTO.Response mapToResponse(TransactionEntity saved) {
-        return TransactionDTO.Response.builder().id(saved.getId()).amount(saved.getAmount())
-                .type(saved.getTransactionType()).note(saved.getDescription()).date(saved.getTransactionDate())
+        return TransactionDTO.Response.builder()
+                .id(saved.getId())
+                .amount(saved.getAmount())
+                .type(saved.getTransactionType())
+                .note(saved.getDescription())
+                .date(saved.getTransactionDate())
                 .categoryId(saved.getCategoryEntity() != null ? saved.getCategoryEntity().getId() : null)
-                .categoryName(saved.getCategory()).build();
+                .categoryName(saved.getCategory())
+                .build();
     }
 }
