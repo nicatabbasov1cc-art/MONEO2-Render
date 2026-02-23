@@ -2,6 +2,7 @@ package com.example.moneo.controller;
 
 import com.example.moneo.dto.AuthDTO;
 import com.example.moneo.service.AuthService;
+import com.example.moneo.service.RateLimitService;
 import com.example.moneo.service.TokenBlacklistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,17 @@ public class AuthController {
 
     private final AuthService authService;
     private final TokenBlacklistService blacklistService;
+    private final RateLimitService rateLimitService;
 
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AuthDTO.RegisterRequest request) {
+        if (!rateLimitService.tryConsume(request.getEmail())) {
+            return ResponseEntity.status(429).body(Map.of(
+                    "error", "TOO_MANY_REQUESTS",
+                    "message", "Çox sayda sorğu göndərildi. Bir az gözləyin."
+            ));
+        }
         authService.register(request);
         return ResponseEntity.ok(Map.of("message", "Qeydiyyat uğurla tamamlandı"));
     }

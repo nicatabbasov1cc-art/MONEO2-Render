@@ -5,7 +5,10 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "accounts", indexes = {
+        @Index(name = "idx_accounts_user_id", columnList = "user_id"),
+        @Index(name = "idx_accounts_user_currency", columnList = "user_id, currency")
+})
 @Getter
 @Setter
 @ToString(exclude = {"user"})

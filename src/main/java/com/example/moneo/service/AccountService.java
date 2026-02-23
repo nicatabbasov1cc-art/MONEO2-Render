@@ -23,7 +23,6 @@ public class AccountService {
     private final TransactionRepository transactionRepository;
     private final UserService userService;
 
-
     public List<AccountDTO.AccountResponse> findByUserId(Long userId) {
         List<AccountEntity> accounts = accountRepository.findByUserId(userId);
         return accounts.stream()
@@ -34,7 +33,6 @@ public class AccountService {
     public AccountEntity findById(Long id) {
         return accountRepository.findById(id).orElse(null);
     }
-
 
     @Transactional
     public AccountDTO.AccountResponse createAccount(AccountDTO.CreateRequest request) {
@@ -72,17 +70,15 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
-
     private AccountDTO.AccountResponse convertToDTO(AccountEntity account) {
         return AccountDTO.AccountResponse.builder()
                 .accountId(account.getId())
                 .balance(account.getBalance())
                 .currency(account.getCurrency())
-                .transactions(List.of()) // Boş siyahı
+                .transactions(List.of())
                 .success(true)
                 .build();
     }
-
 
     private AccountDTO.AccountResponse convertToDTO(AccountEntity account, TransactionEntity transaction) {
         AccountDTO.TransactionResponse txResponse = AccountDTO.TransactionResponse.builder()

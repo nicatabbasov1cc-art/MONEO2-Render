@@ -5,7 +5,11 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "categories", indexes = {
+        @Index(name = "idx_categories_user_id", columnList = "user_id"),
+        @Index(name = "idx_categories_is_default", columnList = "isDefault"),
+        @Index(name = "idx_categories_user_default", columnList = "user_id, isDefault")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
