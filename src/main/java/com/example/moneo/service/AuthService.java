@@ -2,6 +2,7 @@ package com.example.moneo.service;
 
 import com.example.moneo.dto.AuthDTO;
 import com.example.moneo.entity.UserEntity;
+import com.example.moneo.repository.TransactionRepository;
 import com.example.moneo.repository.UserRepository;
 import com.example.moneo.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final RateLimitService rateLimitService;
+    private final TransactionRepository transactionRepository; // YENİ: hasData üçün
 
     public String register(AuthDTO.RegisterRequest request) {
 
@@ -28,11 +30,9 @@ public class AuthService {
             throw new RuntimeException("PASSWORDS_DO_NOT_MATCH");
         }
 
-
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("EMAIL_EXISTS");
         }
-
 
         UserEntity user = UserEntity.builder()
                 .email(request.getEmail())
@@ -47,11 +47,6 @@ public class AuthService {
     public AuthDTO.AuthResponse login(AuthDTO.LoginRequest request) {
         System.out.println("LOG: Giriş cəhdi yoxlanılır - Email: " + request.getEmail());
 
-        if (!rateLimitService.tryConsume(request.getEmail())) {
-            System.err.println("LOG: !!! RATE LIMIT ASHILDI !!! - " + request.getEmail());
-            throw new RuntimeException("TOO_MANY_REQUESTS");
-        }
-
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -65,8 +60,9 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
         String token = jwtUtil.generateToken(user.getEmail());
-        boolean hasData = user.getTransactions() != null && !user.getTransactions().isEmpty();
 
+
+        boolean hasData = transactionRepository.existsByUserIdAndDeletedFalse(user.getId());
 
         return AuthDTO.AuthResponse.builder()
                 .token(token)

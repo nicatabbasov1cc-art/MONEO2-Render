@@ -24,10 +24,10 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody AuthDTO.RegisterRequest request) {
-        if (!rateLimitService.tryConsume(request.getEmail())) {
+        if (!rateLimitService.tryConsumeRegister(request.getEmail())) {
             return ResponseEntity.status(429).body(Map.of(
                     "error", "TOO_MANY_REQUESTS",
-                    "message", "Çox sayda sorğu göndərildi. Bir az gözləyin."
+                    "message", "Çox sayda qeydiyyat cəhdi. Bir az gözləyin."
             ));
         }
         authService.register(request);
@@ -36,7 +36,13 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<AuthDTO.AuthResponse> login(@Valid @RequestBody AuthDTO.LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthDTO.LoginRequest request) {
+        if (!rateLimitService.tryConsumeLogin(request.getEmail())) {
+            return ResponseEntity.status(429).body(Map.of(
+                    "error", "TOO_MANY_REQUESTS",
+                    "message", "Çox sayda giriş cəhdi. Bir az gözləyin."
+            ));
+        }
         return ResponseEntity.ok(authService.login(request));
     }
 

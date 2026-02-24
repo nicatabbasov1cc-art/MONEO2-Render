@@ -10,17 +10,35 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RateLimitService {
-    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+    private final Map<String, Bucket> loginCache = new ConcurrentHashMap<>();
+    private final Map<String, Bucket> registerCache = new ConcurrentHashMap<>();
 
-    private Bucket createNewBucket() {
-
-        Bandwidth limit = Bandwidth.classic(2, Refill.intervally(2, Duration.ofMinutes(1)));
+    private Bucket createLoginBucket() {
+        // 5 cəhd / dəqiqə
+        Bandwidth limit = Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1)));
         return Bucket.builder().addLimit(limit).build();
     }
 
-    public boolean tryConsume(String email) {
-        boolean allowed = cache.computeIfAbsent(email, k -> createNewBucket()).tryConsume(1);
-        System.out.println("Rate Limit yoxlanışı: " + email + " -> İcazə: " + allowed);
+    private Bucket createRegisterBucket() {
+        // 3 cəhd / 10 dəqiqə
+        Bandwidth limit = Bandwidth.classic(3, Refill.intervally(3, Duration.ofMinutes(10)));
+        return Bucket.builder().addLimit(limit).build();
+    }
+
+    public boolean tryConsumeLogin(String email) {
+        boolean allowed = loginCache.computeIfAbsent(email, k -> createLoginBucket()).tryConsume(1);
+        System.out.println("Rate Limit (Login) yoxlanışı: " + email + " -> İcazə: " + allowed);
         return allowed;
+    }
+
+    public boolean tryConsumeRegister(String email) {
+        boolean allowed = registerCache.computeIfAbsent(email, k -> createRegisterBucket()).tryConsume(1);
+        System.out.println("Rate Limit (Register) yoxlanışı: " + email + " -> İcazə: " + allowed);
+        return allowed;
+    }
+
+    // Köhnə metod — geriyə uyğunluq üçün saxlanılır
+    public boolean tryConsume(String email) {
+        return tryConsumeLogin(email);
     }
 }
