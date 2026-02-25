@@ -22,10 +22,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final RateLimitService rateLimitService;
-    private final TransactionRepository transactionRepository; // YENİ: hasData üçün
+    private final TransactionRepository transactionRepository;
 
     public String register(AuthDTO.RegisterRequest request) {
-
         if (!request.getPassword().equals(request.getRepassword())) {
             throw new RuntimeException("PASSWORDS_DO_NOT_MATCH");
         }
@@ -59,15 +58,50 @@ public class AuthService {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
-        String token = jwtUtil.generateToken(user.getEmail());
-
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         boolean hasData = transactionRepository.existsByUserIdAndDeletedFalse(user.getId());
 
         return AuthDTO.AuthResponse.builder()
-                .token(token)
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .expiresIn(jwtUtil.getAccessTokenExpirySeconds())
                 .userId(user.getId())
                 .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .hasData(hasData)
+                .success(true)
+                .build();
+    }
+
+
+    public AuthDTO.AuthResponse refresh(AuthDTO.RefreshRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        if (!jwtUtil.validateRefreshToken(refreshToken)) {
+            throw new RuntimeException("INVALID_REFRESH_TOKEN");
+        }
+
+        String email = jwtUtil.extractUsername(refreshToken);
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        String newAccessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
+        boolean hasData = transactionRepository.existsByUserIdAndDeletedFalse(user.getId());
+
+        return AuthDTO.AuthResponse.builder()
+                .token(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .expiresIn(jwtUtil.getAccessTokenExpirySeconds())
+                .userId(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .hasData(hasData)
                 .success(true)
                 .build();

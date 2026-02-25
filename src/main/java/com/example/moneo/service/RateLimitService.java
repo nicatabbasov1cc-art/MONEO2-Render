@@ -14,13 +14,11 @@ public class RateLimitService {
     private final Map<String, Bucket> registerCache = new ConcurrentHashMap<>();
 
     private Bucket createLoginBucket() {
-        // 5 cəhd / dəqiqə
         Bandwidth limit = Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1)));
         return Bucket.builder().addLimit(limit).build();
     }
 
     private Bucket createRegisterBucket() {
-        // 3 cəhd / 10 dəqiqə
         Bandwidth limit = Bandwidth.classic(3, Refill.intervally(3, Duration.ofMinutes(10)));
         return Bucket.builder().addLimit(limit).build();
     }
@@ -37,7 +35,7 @@ public class RateLimitService {
         return allowed;
     }
 
-    // Köhnə metod — geriyə uyğunluq üçün saxlanılır
+
     public boolean tryConsume(String email) {
         return tryConsumeLogin(email);
     }

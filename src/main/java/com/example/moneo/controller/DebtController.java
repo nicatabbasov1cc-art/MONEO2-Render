@@ -27,7 +27,7 @@ public class DebtController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userService.findByEmail(email);
 
-        // Criteria: remainingAmount yoxdursa, totalAmount-a bərabər edilir
+
         var remainingAmount = (request.getRemainingAmount() != null)
                 ? request.getRemainingAmount()
                 : request.getTotalAmount();

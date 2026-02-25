@@ -20,7 +20,7 @@ public class AuthDTO {
 
         @NotBlank(message = "REPASSWORD_REQUIRED")
         @Size(min = 8, message = "PASSWORD_TOO_SHORT")
-        private String repassword; // Yeni sahə
+        private String repassword;
     }
 
     @Data
@@ -28,12 +28,15 @@ public class AuthDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AuthResponse {
-        private String token;
+        private String token;           // access token
+        private String refreshToken;    // refresh token (7 gün)
+        private long expiresIn;         // access token müddəti (saniyə ilə, məs: 3600)
         private Long userId;
         private String email;
+        private String firstName;
+        private String lastName;
         private boolean hasData;
         private boolean success;
-
     }
 
     @Data
@@ -44,5 +47,13 @@ public class AuthDTO {
 
         @NotBlank(message = "PASSWORD_REQUIRED")
         private String password;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RefreshRequest {
+        @NotBlank(message = "REFRESH_TOKEN_REQUIRED")
+        private String refreshToken;
     }
 }
